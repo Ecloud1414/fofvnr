@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="sq">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+html,body{margin:0;padding:0}
+:root{padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+img{max-width:100%}
+[hidden]{display:none!important}
+</style>
+<title>Kuiz: Tedmurija</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Noto+Sans:wght@400;500;600;700&family=Amiri:wght@400;700&display=swap">
+<style>
+/* Layout: kolonë leximi; tri ekrane (fillim/kuiz/rezultate). Pal.: smerald + ar në ngjyrë letre. */
+:root{
+  --bg:#f3f1e9; --surface:#fffdf7; --surface-2:#f7f4ea;
+  --fg:#23312b; --muted:#6a776f; --border:#e4ddcc;
+  --accent:#0e6b52; --accent-ink:#0b5944; --accent-soft:#dcebe2;
+  --gold:#b0842c;
+  --correct:#0d7a4d; --correct-bg:#def1e5; --correct-bd:#9ad3b4;
+  --wrong:#be392b; --wrong-bg:#fbe5e0; --wrong-bd:#eeb6ab;
+  --idle:#ece7da; --idle-fg:#8a897c;
+  --shadow:0 1px 2px rgba(20,40,32,.05),0 6px 20px rgba(20,40,32,.07);
+  --maxw:50rem;
+  --font-display:"Marcellus",Georgia,serif;
+  --font-body:"Noto Sans","Amiri","Segoe UI",system-ui,sans-serif;
+  --font-ar:"Amiri",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#11161b; --surface:#19211d; --surface-2:#202823;
+  --fg:#e9ede9; --muted:#9db0a6; --border:#2d3a33;
+  --accent:#43b78c; --accent-ink:#5ac79c; --accent-soft:#1c342b;
+  --gold:#d6b25e;
+  --correct:#54c48d; --correct-bg:#153626; --correct-bd:#2f6a4e;
+  --wrong:#e67f70; --wrong-bg:#3d201b; --wrong-bd:#7a3a31;
+  --idle:#232c27; --idle-fg:#7f8d84;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 22px rgba(0,0,0,.35);
+  color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#11161b; --surface:#19211d; --surface-2:#202823;
+  --fg:#e9ede9; --muted:#9db0a6; --border:#2d3a33;
+  --accent:#43b78c; --accent-ink:#5ac79c; --accent-soft:#1c342b;
+  --gold:#d6b25e;
+  --correct:#54c48d; --correct-bg:#153626; --correct-bd:#2f6a4e;
+  --wrong:#e67f70; --wrong-bg:#3d201b; --wrong-bd:#7a3a31;
+  --idle:#232c27; --idle-fg:#7f8d84;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 6px 22px rgba(0,0,0,.35);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--font-body);line-height:1.5;
+  -webkit-font-smoothing:antialiased;font-size:16px}
+.wrap{max-width:var(--maxw);margin:0 auto;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:24px 56px}
+.ar{font-family:var(--font-ar);font-size:1.12em;line-height:1.9}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;text-wrap:balance;margin:0}
+.muted{color:var(--muted)}
+button{font-family:inherit;cursor:pointer}
+
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
+.hero-top{padding:30px 26px 22px;background:radial-gradient(120% 120% at 100% 0,var(--accent-soft) 0,transparent 60%);border-bottom:1px solid var(--border)}
+.eyebrow{font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:700}
+.hero h1{font-size:clamp(1.8rem,5vw,2.6rem);margin:.4rem 0 .3rem;color:var(--accent-ink)}
+.hero-sub{color:var(--muted);font-size:1.02rem;max-width:44ch}
+.creed{margin:22px 26px;padding:18px 20px;border-radius:14px;background:var(--surface-2);border:1px solid var(--border);border-left:4px solid var(--accent)}
+.creed .lbl{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:6px}
+.creed p{margin:0;font-size:1.04rem;line-height:1.6}
+.meta-row{display:flex;flex-wrap:wrap;gap:12px;margin:0 26px 8px}
+.stat{flex:1 1 7rem;min-width:0;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:12px 14px}
+.stat b{font-family:var(--font-display);font-size:1.5rem;color:var(--accent-ink);display:block;line-height:1.1}
+.stat span{font-size:.82rem;color:var(--muted)}
+.rules{margin:16px 26px 8px;padding:0;list-style:none;display:grid;gap:9px}
+.rules li{display:flex;gap:10px;align-items:flex-start;font-size:.95rem}
+.rules li::before{content:"";flex:0 0 7px;height:7px;border-radius:50%;background:var(--accent);margin-top:8px}
+.actions{padding:20px 26px 28px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.btn{border:1px solid transparent;border-radius:11px;padding:13px 22px;font-size:1rem;font-weight:600;background:var(--accent);color:#fff;transition:filter .15s,transform .05s}
+.btn:hover{filter:brightness(1.06)} .btn:active{transform:translateY(1px)}
+.btn.ghost{background:transparent;color:var(--accent-ink);border-color:var(--border)}
+.btn.ghost:hover{background:var(--surface-2);filter:none}
+.btn.sm{padding:9px 15px;font-size:.9rem;border-radius:9px}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.books{margin:4px 26px 0;font-size:.82rem;color:var(--muted);line-height:1.7}
+.books b{color:var(--fg);font-weight:600}
+
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--border);margin-bottom:22px}
+.topbar-in{max-width:var(--maxw);margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px max(16px,env(safe-area-inset-right,0px)) 10px max(16px,env(safe-area-inset-left,0px))}
+.counter{font-family:var(--font-display);font-size:1.05rem;white-space:nowrap}
+.counter small{color:var(--muted);font-size:.8em}
+.progress{flex:1 1 auto;min-width:0;height:8px;border-radius:99px;background:var(--idle);overflow:hidden}
+.progress>i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--gold));transition:width .25s}
+.iconbtn{border:1px solid var(--border);background:var(--surface);color:var(--fg);border-radius:9px;padding:7px 11px;font-size:.85rem;font-weight:600}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow);padding:24px 22px}
+.qtag{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.qtag .topic{color:var(--gold)}
+.qtag .kind{color:var(--accent-ink);background:var(--accent-soft);border:1px solid var(--border);border-radius:99px;padding:2px 9px;font-size:.66rem}
+.qtext{font-size:1.22rem;line-height:1.5;margin:0 0 20px;font-weight:500}
+.opts{display:grid;gap:11px}
+.opts.tf{grid-template-columns:1fr 1fr}
+@media(max-width:380px){.opts.tf{grid-template-columns:1fr}}
+.opt{display:flex;gap:13px;align-items:flex-start;text-align:start;width:100%;background:var(--surface-2);border:1.5px solid var(--border);border-radius:12px;padding:14px 15px;font-size:1.02rem;color:var(--fg);transition:border-color .12s,background .12s}
+.opt:hover{border-color:var(--accent)}
+.opt .key{flex:0 0 1.6rem;height:1.6rem;border-radius:50%;background:var(--surface);border:1.5px solid var(--border);display:grid;place-items:center;font-weight:700;font-size:.9rem;color:var(--muted);font-family:var(--font-display)}
+.opt.sel{border-color:var(--accent);background:var(--accent-soft)}
+.opt.sel .key{background:var(--accent);border-color:var(--accent);color:#fff}
+.opt .txt{min-width:0;padding-top:1px}
+.opt.tfbtn{justify-content:center;text-align:center;font-weight:600;font-size:1.08rem;padding:18px 12px}
+.opt.tfbtn .key{display:none}
+.navbtns{display:flex;gap:11px;margin-top:20px;align-items:center;flex-wrap:wrap}
+.spacer{flex:1 1 auto}
+.hintbtn{margin-top:14px;width:100%;display:flex;align-items:center;justify-content:center;gap:8px;color:var(--gold)}
+
+.jump{margin-top:18px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px}
+.jump h3{font-size:.95rem;margin-bottom:12px;color:var(--muted);letter-spacing:.04em}
+.grid-n{display:grid;grid-template-columns:repeat(auto-fill,minmax(2.2rem,1fr));gap:7px}
+.cell{aspect-ratio:1;border-radius:8px;border:1px solid var(--border);background:var(--surface-2);color:var(--muted);font-weight:600;font-size:.82rem;font-variant-numeric:tabular-nums;display:grid;place-items:center;transition:transform .05s}
+.cell:hover{transform:translateY(-1px)}
+.cell.answered{background:var(--accent-soft);color:var(--accent-ink);border-color:var(--accent)}
+.cell.current{outline:2px solid var(--gold);outline-offset:1px}
+.cell.correct{background:var(--correct-bg);color:var(--correct);border-color:var(--correct-bd)}
+.cell.wrong{background:var(--wrong-bg);color:var(--wrong);border-color:var(--wrong-bd)}
+.cell.blank{background:var(--idle);color:var(--idle-fg)}
+
+.score{background:var(--surface);border:1px solid var(--border);border-radius:18px;box-shadow:var(--shadow);padding:26px;text-align:center;margin-bottom:18px;background-image:radial-gradient(130% 120% at 50% -10%,var(--accent-soft) 0,transparent 55%)}
+.score .big{font-family:var(--font-display);font-size:clamp(2.6rem,10vw,4rem);line-height:1;color:var(--accent-ink)}
+.score .pct{font-size:1.1rem;color:var(--muted);margin-top:6px}
+.score .tags{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:16px}
+.pill{border-radius:99px;padding:7px 14px;font-size:.88rem;font-weight:600;border:1px solid var(--border)}
+.pill.ok{background:var(--correct-bg);color:var(--correct);border-color:var(--correct-bd)}
+.pill.no{background:var(--wrong-bg);color:var(--wrong);border-color:var(--wrong-bd)}
+.pill.sk{background:var(--idle);color:var(--idle-fg)}
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin:4px 2px 14px;font-size:.84rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.dot{width:13px;height:13px;border-radius:4px;border:1px solid var(--border)}
+.dot.c{background:var(--correct-bg);border-color:var(--correct-bd)}
+.dot.w{background:var(--wrong-bg);border-color:var(--wrong-bd)}
+.dot.b{background:var(--idle)}
+
+.review{margin-top:18px;display:grid;gap:14px}
+.rev-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 17px;scroll-margin-top:72px}
+.rev-head{display:flex;gap:10px;align-items:baseline;margin-bottom:4px;flex-wrap:wrap}
+.rev-num{font-family:var(--font-display);font-size:1.05rem;color:var(--accent-ink)}
+.rev-badge{font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:99px;text-transform:uppercase;letter-spacing:.06em}
+.rev-badge.ok{background:var(--correct-bg);color:var(--correct)}
+.rev-badge.no{background:var(--wrong-bg);color:var(--wrong)}
+.rev-badge.sk{background:var(--idle);color:var(--idle-fg)}
+.rev-q{font-weight:500;font-size:1.08rem;margin:6px 0 13px;line-height:1.45}
+.rev-opts{display:grid;gap:8px}
+.rev-opt{display:flex;gap:11px;align-items:flex-start;border:1.5px solid var(--border);border-radius:10px;padding:11px 13px;font-size:.98rem;background:var(--surface-2)}
+.rev-opt .key{flex:0 0 1.5rem;height:1.5rem;border-radius:50%;display:grid;place-items:center;font-weight:700;font-size:.85rem;font-family:var(--font-display);border:1.5px solid var(--border);background:var(--surface);color:var(--muted)}
+.rev-opt.c{background:var(--correct-bg);border-color:var(--correct-bd);color:var(--correct)}
+.rev-opt.c .key{background:var(--correct);border-color:var(--correct);color:#fff}
+.rev-opt.w{background:var(--wrong-bg);border-color:var(--wrong-bd);color:var(--wrong)}
+.rev-opt.w .key{background:var(--wrong);border-color:var(--wrong);color:#fff}
+.rev-opt .mark{margin-inline-start:auto;font-size:.74rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;align-self:center}
+.rev-why{margin-top:12px;padding:11px 14px;background:var(--surface-2);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:9px;font-size:.92rem;line-height:1.5}
+.rev-why b{color:var(--gold);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-inline-end:6px}
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 2px}
+.chip{border:1px solid var(--border);background:var(--surface);color:var(--fg);border-radius:99px;padding:7px 14px;font-size:.86rem;font-weight:600}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.foot{margin-top:28px;text-align:center;color:var(--muted);font-size:.82rem;line-height:1.7}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+.modal-bk{position:fixed;inset:0;z-index:40;background:rgba(10,22,17,.55);display:flex;align-items:flex-end;justify-content:center;padding:0;animation:fade .15s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media(min-width:560px){.modal-bk{align-items:center;padding:20px}}
+.modal{background:var(--surface);border:1px solid var(--border);width:100%;max-width:34rem;border-radius:18px 18px 0 0;box-shadow:0 -8px 40px rgba(0,0,0,.35);padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow:auto}
+@media(min-width:560px){.modal{border-radius:18px}}
+.modal .mtag{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:8px}
+.modal .mq{font-weight:500;font-size:1.1rem;margin:0 0 15px;line-height:1.45}
+.modal .ans{display:flex;gap:11px;align-items:flex-start;background:var(--correct-bg);border:1.5px solid var(--correct-bd);border-radius:12px;padding:13px 14px;color:var(--correct)}
+.modal .ans .key{flex:0 0 1.6rem;height:1.6rem;border-radius:50%;background:var(--correct);color:#fff;display:grid;place-items:center;font-weight:700;font-family:var(--font-display)}
+.modal .ans .atx{min-width:0;padding-top:1px;font-weight:600}
+.modal .why{margin-top:14px;padding:13px 15px;background:var(--surface-2);border:1px solid var(--border);border-left:4px solid var(--gold);border-radius:10px;font-size:.98rem;line-height:1.55}
+.modal .why b{color:var(--gold);display:block;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:5px}
+.modal .closeRow{display:flex;justify-content:flex-end;margin-top:18px}
+@media (max-width:420px){.creed,.meta-row,.rules,.actions,.books{margin-left:18px;margin-right:18px}.card{padding:20px 16px}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ===== TË DHËNAT: 90 PYETJE — El-Kavaidul-Muthla (Ibn Uthejmin) =====
+   type:"tf" => pohim «Saktë / E pasaktë» (a: 0=Saktë, 1=E pasaktë)
+   ndryshe   => me 4 opsione (a = indeksi i saktë në renditjen e shkruar)         */
+const QUESTIONS = [
+{"t":"Devijuesit","q":"Devijuesit (ez-zaig) nga rruga e të dërguarve në emrat e cilësitë ndahen në dy lloje, që janë:","o":["Mumethilet dhe Muattilet","Besimtarët dhe mohuesit","Arabët dhe joarabët","Dijetarët dhe injorantët"],"a":0,"e":"Tedmurija i ndan në Mumethile (ngjasues) dhe Muattile (mohues); secili e teproi në njërën anë e mangësoi në tjetrën."},
+{"t":"Devijuesit","type":"tf","q":"Mumethilet e tepruan në pohim (ithbat) dhe mangësuan në mohim (nefj).","a":0,"e":"Saktë: Mumethilet pohuan cilësi që u ngjajnë krijesave (teprim në pohim) e mangësuan në mohimin e ngjasimit; Muattilet bënë të kundërtën."},
+{"t":"Devijuesit","type":"tf","q":"Muattilet e tepruan në pohim dhe mangësuan në mohim.","a":1,"e":"E pasaktë: Muattilet e tepruan në MOHIM e mangësuan në pohim; teprimi në pohim është shenjë e Mumethileve."},
+{"t":"Devijuesit","q":"Mumethilet i pohuan cilësitë e Allahut në një mënyrë që:","o":["u ngjante cilësive të krijesave","i zbrazte emrat prej kuptimit","mohonte çdo cilësi","pajtohej me rrugën e selefit"],"a":0,"e":"Mumethilet thanë se Allahu ka fytyrë, duar e sy si fytyra, duart e sytë tanë — pra ngjasim (temthil) me krijesat."},
+{"t":"Devijuesit","q":"Shubha (dyshimi) kryesor i Mumethileve ishte:","o":["Allahu na foli me çka njohim, pra kuptimi është si yni","Cilësitë e Allahut janë tepër të shumta për t'u pohuar","Teksti i cilësive është metaforë, jo kuptim i vërtetë","Allahu në thelb nuk ka asnjë cilësi reale fare"],"a":0,"e":"Mumethili pretendon se, meqë Allahu na u drejtua me çka njohim, kuptimi duhet të jetë si te ne; përgjigjja: njihet kuptimi pa qenë si i krijesave."},
+{"t":"Devijuesit","q":"Medh'hebi i Mumethileve rrëzohet me tri rrugë provash, që janë:","o":["sem', akl dhe hiss","sem', ixhma dhe kijas","fitra, zakoni dhe shija","vetëm argumenti mendor"],"a":0,"e":"Rrëzohet me sheriatin («لَيْسَ كَمِثْلِهِ شَيْءٌ»), mendjen (dallimi Krijues-krijesë) dhe shqisën (dallimi i dukshëm i qenieve)."},
+{"t":"Devijuesit","q":"Prej provave sem'ije kundër Mumethileve është ajeti:","o":["«فَلَا تَضْرِبُوا لِلَّهِ الْأَمْثَالَ»","«إِيَّاكَ نَعْبُدُ»","«اللَّهُ الصَّمَدُ»","«الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ»"],"a":0,"e":"«Mos i sillni Allahut shembuj (të ngjashëm)» (Nahl 74) — bashkë me «لَيْسَ كَمِثْلِهِ شَيْءٌ» rrëzon ngjasimin."},
+{"t":"Devijuesit","type":"tf","q":"Argumenti mendor kundër temthilit mbështetet në dallimin (tebajun) mes Krijuesit e krijesës në Qenie e në ekzistencë, që kërkon dallim edhe në cilësi.","a":0,"e":"Saktë: dallimi i qartë mes Krijuesit e krijesës në dhat kërkon domosdoshmërisht dallim në cilësi — pra ngjasimi është i pamundur."},
+{"t":"Muattilet","q":"Sipas Tedmurijes, Muattilet ndahen në sa grupe (taife)?","o":["katër","dy","tre","gjashtë"],"a":0,"e":"Katër grupet: Esharitë/Maturiditë; Mutezilët; gulatët e Xhehmijve/Karamitë/Batinitë; gulatu'l-gulat (filozofë)."},
+{"t":"Muattilet","q":"Grupi i PARË i Muattileve — që pohon emrat dhe disa cilësi, e mohon shumicën e realiteteve — janë:","o":["Esharitë dhe ata që u ngjasojnë prej Maturidive","Mutezilët dhe pasuesit e tyre prej ehli kelamit","Gulatët e Xhehmijve dhe Karamitët e Batinitët","Filozofët dhe batinitët e devijuar historikisht"],"a":0,"e":"Grupi i parë (Esharitë/Maturiditë) pohon emrat e shtatë cilësi, e mohon pjesën tjetër të realiteteve të cilësive."},
+{"t":"Muattilet","q":"Shtatë cilësitë që pohon grupi i parë (Esharitë) janë:","o":["Jeta, Dituria, Fuqia, Vullneti, Kelami, Dëgjimi, Shikimi","Fytyra, duart, sytë, ardhja, zbritja, istiuaja, mëshira","Mëshira, hidhërimi, dashuria, kënaqësia, urrejtja, ardhja, zbritja","Krijimi, furnizimi, gjallërimi, vdekja, ringjallja, llogaria, gjykimi"],"a":0,"e":"Shtatë sifatu'l-me'ani: el-hajat, el-ilm, el-kudra, el-irade, el-kelam, es-sem', el-besar."},
+{"t":"Muattilet","type":"tf","q":"Grupi i parë (Esharitë) i pranon emrat dhe shtatë cilësi.","a":0,"e":"Saktë: Esharitë pohojnë emrat dhe shtatë cilësitë e me'anive, e mohojnë shumicën e realiteteve të tjera të cilësive."},
+{"t":"Muattilet","type":"tf","q":"Mutezilët i pranojnë emrat dhe shtatë cilësi.","a":1,"e":"E pasaktë: shtatë cilësitë i pohojnë Esharitë (grupi i parë); Mutezilët (grupi i dytë) i pohojnë vetëm emrat PA cilësi."},
+{"t":"Muattilet","q":"Një prej përgjigjeve kundër grupit të parë është se kthimi te mendja në këtë çështje:","o":["bie ndesh me atë që ishin selefi","pajtohet me rrugën e selefit","është i detyruar nga teksti","s'ka lidhje me akiden"],"a":0,"e":"Imam Ahmedi: «نصف الله بما وصف به نفسه ولا نتعدى القرآن والحديث» — kthimi te mendja mbi tekstin bie ndesh me metodën e selefit."},
+{"t":"Muattilet","type":"tf","q":"Prej përgjigjeve kundër grupit të parë është se kthimi te mendja në cilësi çon te përçarja e kundërthënia.","a":0,"e":"Saktë: çdo dialektik që vjen më i zoti lë atë që solli Xhibrili — siç tha Maliku në Hamawijje; mbështetja te mendja sjell dallim e kundërthënie."},
+{"t":"Muattilet","q":"Grupi i DYTË i Muattileve — që pohon emrat PA cilësi — janë:","o":["Mutezilët dhe ata që i ndoqën prej ehli kelamit","Esharitë dhe Maturiditë e afërt me mendimin e tyre","Gulatët e Xhehmijve dhe Karamitët e Batinitët","Filozofët e lashtë dhe pasuesit e tyre të mëvonshëm"],"a":0,"e":"Mutezilët i bëjnë emrat etiketa (a'lam): «Alim bila ilm, Kadir bila kudra» — pohim i emrit, mohim i cilësisë."},
+{"t":"Muattilet","q":"Disa Mutezilë i konsiderojnë emrat (El-Alim, El-Kadir, Es-Semi') si:","o":["etiketa ose emra sinonimë pa kuptime të veçanta","cilësi reale të dallueshme qartë nga njëra-tjetra","emra të krijuar në kohë nga vetë robërit e Tij","metafora të Qenies hyjnore pa përmbajtje reale"],"a":0,"e":"Disa thonë se janë sinonime (tregojnë vetëm Qenien), disa se Ai është «Alim bila ilm» — pra emra pa përmbajtje cilësie."},
+{"t":"Muattilet","q":"Shubha e grupit të dytë (Mutezilëve) për mohimin e cilësive ishte se:","o":["pohimi i cilësive, sipas tyre, kërkon ngjasim e shumim","cilësitë e Allahut nuk përmenden fare brenda tekstit","Allahu i ka fshehur qëllimisht cilësitë prej robërve","mendja e njeriut nuk mund t'i kapë fare emrat e Tij"],"a":0,"e":"Thanë se vetëm trupi përshkruhet me cilësi, e trupat janë të ngjashëm, pra pohimi i cilësive kërkon ngjasim e ta'addud el-kudema — shubhë e refuzuar."},
+{"t":"Muattilet","type":"tf","q":"Prej përgjigjeve kundër Mutezilëve: nëse pohimi i cilësive kërkon ngjasim, atëherë edhe pohimi i emrave do ta kërkonte atë.","a":0,"e":"Saktë: s'ka dallim — ose pohohen të dyja (si selefi), ose mohohen të dyja (si gulatët), ose dallohet mes tyre (kundërthënie)."},
+{"t":"Muattilet","q":"Një përgjigje gjuhësore kundër Mutezilëve është se fjala e prejardhur (mushtekk):","o":["tregon domosdo kuptimin prej të cilit është prejardhur","tregon vetëm Qenien, pa asnjë kuptim shtesë","s'ka fare kuptim dhe është thjesht një etiketë","është gjithmonë metaforë e larguar nga realiteti"],"a":0,"e":"S'mund të thuhet «Alim» për atë që s'ka dije, as «Kadir» për atë që s'ka fuqi — mushtekki e tregon rrënjën e tij."},
+{"t":"Muattilet","type":"tf","q":"Pretendimi i Mutezilëve se «vetëm trupi përshkruhet me cilësi» është i pranueshëm sipas Tedmurijes.","a":1,"e":"E pasaktë: refuzohet — gjejmë gjëra të përshkruara që s'janë trupa (nata e gjatë, dita e shkurtër, të ftohtët e ashpër); e fjala «trup» s'duhet futur as pohuese as mohuese te Allahu."},
+{"t":"Muattilet","q":"Grupi i TRETË i Muattileve — që mohon edhe emrat edhe cilësitë — janë:","o":["gulatët e Xhehmijve, Karamitët dhe Batinitët","Esharitë dhe Maturiditë e afërt me ta","Mutezilët dhe pasuesit e tyre të drejtpërdrejtë","Mushebbihet dhe gulatët e lavdërimit të tepruar"],"a":0,"e":"Grupi i tretë e përshkruan Allahun me mohim të pastër; thonë se çdo cilësi është identike me të përshkruarin e me çdo cilësi tjetër."},
+{"t":"Muattilet","q":"Grupi i tretë e përshkruan Allahun si:","o":["ekzistuesi absolut me kusht abstraktimi (vetëm në mendje)","ekzistuesi më i përsosur me cilësitë e Tij të plota","i lartësuari mbi Arshin, i ndarë nga krijesat e Tij","krijuesi që rrethon gjithçka me dijen e fuqinë e Tij"],"a":0,"e":"Kjo ekzistencë abstrakte s'gjendet veçse në mendje; pra ata e zbrazin Allahun nga çdo realitet — mohim i pastër."},
+{"t":"Muattilet","type":"tf","q":"Grupi i tretë thotë se cilësia është identike me të përshkruarin, dhe çdo cilësi është identike me cilësinë tjetër.","a":0,"e":"Saktë: prandaj te ta s'ka dallim mes dijes e fuqisë e dëgjimit; kjo është pjesë e mohimit të tyre të plotë."},
+{"t":"Muattilet","q":"Grupi i KATËRT (gulatu'l-gulat prej filozofëve e xhehmijve) e teproi edhe më tej duke:","o":["as pohuar as mohuar asgjë për Allahun","pohuar të gjitha cilësitë bashkë me emrat","ngjasuar hapur Allahun me vetë krijesat","pohuar vetëm emrat pa cilësitë përkatëse"],"a":0,"e":"Thonë: as ekziston as s'ekziston, as i gjallë as i vdekur, as i ditur as i paditur — mohim i vetë pohimit dhe mohimit."},
+{"t":"Muattilet","q":"Shubha e grupit të katërt ishte se:","o":["pohimi ngjason me ekzistuesit, mohimi me joekzistuesit","Allahu në thelb nuk ka fare Qenie e as cilësi reale","cilësitë e Tij janë tepër të shumta për t'u numëruar","teksti i cilësive është thjesht figurë letrare pa kuptim"],"a":0,"e":"Nga frika se pohimi do ta ngjasonte me ekzistuesit e mohimi me joekzistuesit, s'pohuan e s'mohuan — teprim mbi teprim."},
+{"t":"Muattilet","q":"Kundër grupit të katërt sillet si provë mendore se:","o":["mundësimi i ekzistencës kërkon një ekzistues të domosdoshëm","çdo gjë në botë është thjesht e rastësishme, pa shkak","bota materiale nuk ka pasur kurrë ndonjë fillim","nuk ka asnjë dallim real mes qenieve të ndryshme"],"a":0,"e":"«أَمْ خُلِقُوا مِنْ غَيْرِ شَيْءٍ أَمْ هُمُ الْخَالِقُونَ» (Tur 35) — mumkinu'l-vuxhud kërkon vaxhibu'l-vuxhud: një ekzistues të amshuar e të domosdoshëm."},
+{"t":"Muattilet","type":"tf","q":"Grupi i tretë dhe i katërt pajtohen me selefin në pohimin e cilësive të Allahut.","a":1,"e":"E pasaktë: të dy grupet janë në skajin e mohimit (ta'til); selefi i pohojnë cilësitë ashtu siç i takojnë Allahut, pa ngjasim e pa zbrazje."},
+{"t":"Rruga","q":"Secili prej katër grupeve ra në disa rreziqe (mehadhir). Cili NUK është prej tyre?","o":["pohimi i cilësive siç i takojnë Allahut","kundërshtimi i rrugës së selefit","ta'tili i teksteve nga kuptimi i synuar","tahrifi i teksteve te kuptime të pasynuara"],"a":0,"e":"Rreziqet janë devijime (kundërshtimi i selefit, ta'til, tahrif, zbrazja nga kemali, kundërthënia); pohimi korrekt është rruga e shpëtimit."},
+{"t":"Rruga","type":"tf","q":"Prej rreziqeve ku ranë grupet është kundërthënia në metodën e tyre — mes asaj që pohuan e asaj që mohuan.","a":0,"e":"Saktë: p.sh. pohojnë disa cilësi e mohojnë të ngjashmet pa dallim — kundërthënie (tenakud) në metodë."},
+{"t":"Rruga","q":"Rruga vendimtare pa kundërthënie, që ishte rruga e selefit, është:","o":["pohim pa temthil dhe tenzih pa ta'til","mohim i plotë i cilësive të Allahut","teshbih i matur i cilësive me krijesat","heshtje e plotë absolute ndaj teksteve"],"a":0,"e":"Selefi pohuan atë që pohoi Allahu, pa temthil e pa takjif, e tenzihuan pa ta'til, duke i kaluar tekstet mbi dhahirin që i takon Allahut."},
+{"t":"Rruga","type":"tf","q":"Rruga e selefit është kalimi i teksteve mbi dhahirin e tyre, pa tahrif, ta'til, takjif e temthil.","a":0,"e":"Saktë: ky është pohimi pa temthil e tenzihu pa ta'til — rruga e vetme pa kundërthënie."},
+{"t":"Rruga","q":"Thënia «نصف الله بما وصف به نفسه ولا نتعدى القرآن والحديث» i atribuohet:","o":["Imam Ahmedit","Imam Malikut","Ibn Abasit","Imam Shafiut"],"a":0,"e":"Imam Ahmedi: e përshkruajmë Allahun me çka e përshkroi Veten e s'e tejkalojmë Kuranin dhe hadithin — kundër kthimit te mendja."},
+{"t":"Parimet","q":"Parimi i parë (el-asl el-evvel) i Tedmurijes është:","o":["Fjala për disa cilësi është si fjala për disa të tjera","Fjala për cilësitë është si fjala për vetë Qenien","Istiuaja është e njohur, kurse kejfi i panjohur","Allahu është i lartë e i ngritur mbi Arshin e Tij"],"a":0,"e":"القول في بعض الصفات كالقول في بعض — u drejtohet atyre që pohojnë disa cilësi e mohojnë disa të tjera."},
+{"t":"Parimet","q":"Parimi i parë u drejtohet kryesisht:","o":["atyre që pohojnë disa cilësi e mohojnë disa të tjera","atyre që i pohojnë të gjitha cilësitë pa përjashtim","atyre që i mohojnë të gjitha cilësitë tërësisht","mushrikëve idhujtarë që adhurojnë përveç Allahut"],"a":0,"e":"Kush pohon një cilësi real detyrohet të pohojë të ngjashmet; përndryshe bie në kundërthënie — ky është thelbi i parimit të parë."},
+{"t":"Parimet","q":"Zbatim i parimit të parë: atij që pohon iraden (vullnetin) e mohon gadabin (hidhërimin), i thuhet:","o":["s'ka dallim mes iradës që pohove e gadabit që mohove","ke plotësisht të drejtë në këtë dallim që bëre","hidhërimi (gadab) në të vërtetë fare s'ekziston","vullneti (irade) është thjesht një metaforë e largët"],"a":0,"e":"Realiteti i iradës që e pohoi është si realiteti i gadabit që e mohoi — s'ka arsye t'i dallojë; përndryshe është kundërthënës."},
+{"t":"Parimet","q":"Parimi i dytë (el-asl eth-thani) i Tedmurijes është:","o":["Fjala për cilësitë është si fjala për Qenien","Fjala për disa cilësi është si fjala për disa të tjera","Istiuaja është bidat","Emrat janë nëntëdhjetë e nëntë"],"a":0,"e":"القول في الصفات كالقول في الذات — u drejtohet mumethilit e muattilit njëkohësisht."},
+{"t":"Parimet","q":"Parimi i dytë i thotë Mumethilit:","o":["Pse e ngjason cilësinë, kur s'e ngjason Qenien?","Moho edhe Qenien bashkë me cilësitë e Tij","Pohi cilësitë dy herë rresht, për më shumë siguri","Hesht plotësisht për Qenien ashtu si për cilësitë"],"a":0,"e":"Fjala për cilësitë është degë e fjalës për Qenien; kush pranon Qenie të papërngjashme, s'duhet t'i ngjasojë cilësitë."},
+{"t":"Parimet","q":"Parimi i dytë i thotë Muattilit (Mutezilit):","o":["Pohi cilësi të papërngjashme, si Qenien e papërngjashme","Moho edhe Qenien, meqë s'ta pranon mendja e pastër","Ngjasoje Qenien e Tij me qeniet e vetë krijesave","Hesht krejt e mos pohoni as Qenie e as cilësi"],"a":0,"e":"Nëse pranon për Allahun Qenie që s'u ngjan qenieve, pranoji edhe cilësi që s'u ngjajnë cilësive — argumenti i tij i kthehet."},
+{"t":"Parimet","type":"tf","q":"Parimi i dytë («fjala për cilësitë si për Qenien») u drejtohet vetëm Mumethilëve.","a":1,"e":"E pasaktë: u drejtohet edhe Mumethilëve (që ngjasojnë cilësitë) edhe Muattilëve (që i mohojnë) — argumenti funksionon për të dy."},
+{"t":"Parimet","q":"Kur dikush pyet «Si (kejf) është istiuaja e Allahut?», përgjigjja sipas parimit të dytë është:","o":["Si është Qenia e Tij? — fjala për cilësitë si për Qenien","Istiuaja është një ngjitje trupore mbi Arshin","Istiuaja do të thotë vetëm sundim e mbizotërim","Allahu në të vërtetë fare s'ka istiua mbi Arsh"],"a":0,"e":"Ashtu si pohojmë Qenie reale pa e ditur kejfin, pohojmë istiua reale pa e ditur kejfin — i njëjti parim."},
+{"t":"Parimet","q":"Thënia e Imam Malikut për istiuanë, kur u pyet për mënyrën, ishte:","o":["E njohur, kejfi i panjohur, besimi detyrë, pyetja bidat","E panjohur si në kuptim ashtu edhe në mënyrën e saj","Do të thotë sundim e pushtet mbi tërë mbretërinë","Mos e pohoni fare istiuanë, sepse s'ka kuptim"],"a":0,"e":"«الاستواء معلوم، والكيف مجهول، والإيمان به واجب، والسؤال عنه بدعة» — rregull për çdo cilësi (në fusnotë: «غير مجهول... غير معقول»)."},
+{"t":"Parimet","q":"Te thënia e Malikut, «الاستواء معلوم» do të thotë se istiuaja është e njohur:","o":["për nga kuptimi në gjuhën arabe","për nga mënyra dhe forma e saj","vetëm për Profetin e sahabët","në asnjë aspekt të vetin fare"],"a":0,"e":"E njohur për nga kuptimi; kur kushtëzohet me «ala» do të thotë lartësi e qëndrim (uluvv ue istikrar)."},
+{"t":"Parimet","q":"Istiuaja, kur kushtëzohet me parafjalën «على», ka kuptimin gjuhësor të:","o":["lartësisë dhe qëndrimit (uluvv ue istikrar)","pushtimit me forcë dhe mbizotërimit","krijimit të Arshit prej hiçit në kohë","mëshirës së gjerë që e përfshin Arshin"],"a":0,"e":"«فَإِذَا اسْتَوَيْتَ... عَلَى الْفُلْكِ» (Mu'minun 28) e «لِتَسْتَوُوا عَلَى ظُهُورِهِ» (Zukhruf 13) — lartësi e qëndrim; «istivla» është tahrif."},
+{"t":"Parimet","type":"tf","q":"Te thënia e Malikut, «الكيف مجهول» nënkupton se kuptimi i istiuasë është i panjohur.","a":1,"e":"E pasaktë: i panjohur është KEJFI (mënyra), jo kuptimi; kuptimi është i njohur («معلوم»). Ngatërrimi i tyre është gabim."},
+{"t":"Parimet","q":"Një prej arsyeve pse kejfi i istiuasë është i panjohur për ne është:","o":["njohja e mënyrës së cilësisë degëzohet nga ajo e Qenies","Allahu fare nuk na foli për mënyrën e istiuasë së Tij","istiuaja në të vërtetë nuk ka ndonjë mënyrë reale","mendja e njeriut e kap lehtë e qartë mënyrën e saj"],"a":0,"e":"Meqë s'e njohim mënyrën e Qenies së Allahut, s'e njohim as mënyrën e cilësive të Tij; njohja e kejfit vjen vetëm me parje, me të ngjashëm, ose me lajm të vërtetë — të gjitha mungojnë."},
+{"t":"Parimet","type":"tf","q":"Rregulli i Malikut për istiuanë vlen njësoj edhe për cilësitë e tjera, si zbritja (nuzuli).","a":0,"e":"Saktë: nuzuli e cilësitë e tjera janë ma'lumatu'l-ma'na, mexhhulatu'l-kejfijje — besimi detyrë, pyetja për mënyrën bidat."},
+{"t":"Parimet","q":"«السؤال عنه بدعة» te thënia e Malikut i referohet pyetjes për:","o":["mënyrën (kejfijjetin) e istiuasë","kuptimin e fjalës istiua në gjuhë","ekzistencën e vetë Arshit madhështor","numrin e qiejve mbi njëri-tjetrin"],"a":0,"e":"Pyetja për KEJFIN është bidat, ngaqë mënyra s'na u mësua; kuptimi, përkundrazi, është i njohur e besimi në të detyrë."},
+{"t":"Shembujt","q":"Dy shembujt (el-methlan) që sjell Tedmurija për të ilustruar pohimin pa ngjasim janë:","o":["begatitë e Xhennetit dhe shpirti njerëzor","dielli i ndritshëm dhe hëna e plotë","qielli i lartë dhe toka e gjerë nën të","jeta e kësaj bote dhe vdekja pas saj"],"a":0,"e":"Begatitë e Xhennetit (reale, por ndryshe nga dynjaja) dhe shpirti (real, por i panjohur për nga realiteti) ilustrojnë pohimin pa ngjasim."},
+{"t":"Shembujt","q":"Begatitë e Xhennetit përputhen me ato të dynjasë në ___ e ndryshojnë në ___:","o":["kuptim (emër) / realitet","mënyrë / vetë emri","peshë / çmimi i saj","kohë / vendi ku janë"],"a":0,"e":"Përputhja në emër bën që t'i kuptojmë («إِنَّا جَعَلْنَاهُ قُرْآنًا عَرَبِيًّا»); ndryshimi në realitet tregohet nga «فَلَا تَعْلَمُ نَفْسٌ مَّا أُخْفِيَ لَهُم»."},
+{"t":"Shembujt","q":"Thënia e Ibn Abasit për begatitë e Xhennetit ishte:","o":["«Në dynja s'ka gjë nga Xhenneti veç emrave»","«Xhenneti është krejtësisht si kjo dynja»","«Xhenneti s'ka fare begati trupore reale»","«Begatitë e Xhennetit janë vetëm metaforë»"],"a":0,"e":"«ليس في الدنيا مما في الجنة إلا الأسماء» — përputhje vetëm në emra, ndryshim rrënjësor në realitet."},
+{"t":"Shembujt","type":"tf","q":"Përputhja e emrave mes begative të Xhennetit e të dynjasë kërkon që edhe realitetet e tyre të jenë të njëjta.","a":1,"e":"E pasaktë: përputhja në emër s'kërkon përputhje në realitet; mes tyre ka tebajun (dallim) që e di vetëm Allahu — aq më tepër mes Krijuesit e krijesës."},
+{"t":"Shembujt","q":"Ajeti që tregon përputhjen në kuptim (që t'i kuptojmë tekstet) është:","o":["«إِنَّا جَعَلْنَاهُ قُرْآنًا عَرَبِيًّا لَّعَلَّكُمْ تَعْقِلُونَ»","«فَلَا تَعْلَمُ نَفْسٌ مَّا أُخْفِيَ لَهُم مِّن قُرَّةِ أَعْيُنٍ»","«لَيْسَ كَمِثْلِهِ شَيْءٌ وَهُوَ السَّمِيعُ الْبَصِيرُ»","«قُلِ الرُّوحُ مِنْ أَمْرِ رَبِّي وَمَا أُوتِيتُم»"],"a":0,"e":"Pa përputhje në kuptim s'do ta kuptonim Kuranin; ndryshimi në realitet tregohet nga ajete të tjera si «فَلَا تَعْلَمُ نَفْسٌ»."},
+{"t":"Shembujt","q":"Shembulli i dytë (shpirti) tregon se shpirti është:","o":["real, por nuk u ngjan trupave të dëshmuar","një trup material si trupat e tjerë rreth nesh","diçka që në të vërtetë fare nuk ekziston","diçka që ne e njohim plotësisht në realitet"],"a":0,"e":"Shpirti është më i afërti te njeriu, por njerëzit s'e kapën realitetin e tij veçse nga shpallja — real pa qenë si trupat e dëshmuar."},
+{"t":"Shembujt","q":"Në çështjen e shpirtit, ehli kelami ranë në ___, kurse filozofët në ___:","o":["teshbih (e bënë trup) / ta'til (me gjëra të pamundura)","ta'til (e mohuan) / teshbih (e bënë trup real)","pohim të plotë / mohim të pjesshëm të tij","dije të saktë / injorancë të plotë për të"],"a":0,"e":"Mutekel-liminët e bënë shpirtin trup a pjesë trupi (teshbih); filozofët e përshkruan me çka përshkruhet vetëm e pamundura (ta'til)."},
+{"t":"Shembujt","q":"Filozofët e përshkruan shpirtin me gjëra që i përshtaten vetëm:","o":["asaj që është e pamundur të ekzistojë","trupit material që shihet me sy","engjëjve të fshehtë e të padukshëm","vetë Qenies së Allahut të lartësuar"],"a":0,"e":"Thanë: as brenda trupit as jashtë, as i lidhur as i ndarë, as lëviz as qëndron — përshkrim i mumteni'u'l-vuxhud (e pamundurës)."},
+{"t":"Shembujt","q":"Ajeti që tregon kufizimin e dijes sonë për realitetin e shpirtit është:","o":["«وَيَسْأَلُونَكَ عَنِ الرُّوحِ قُلِ الرُّوحُ مِنْ أَمْرِ رَبِّي»","«الرَّحْمَٰنُ عَلَى الْعَرْشِ اسْتَوَى فَاعْبُدْهُ»","«لَيْسَ كَمِثْلِهِ شَيْءٌ وَهُوَ السَّمِيعُ»","«إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ»"],"a":0,"e":"«...وَمَا أُوتِيتُم مِّنَ الْعِلْمِ إِلَّا قَلِيلًا» (Isra 85) — dija jonë për realitetin e plotë të shpirtit është e pakët."},
+{"t":"Shembujt","q":"Përfundimi i shembullit të shpirtit për çështjen e cilësive është se:","o":["Krijuesi është më parësor të pohohet real pa ngjasim","shpirti në të vërtetë është vetë një zot","cilësitë e Allahut janë trupore si të njeriut","nuk ka fare dallim mes Krijuesit e krijesës"],"a":0,"e":"Nëse shpirti (krijesë) është real pa u ngjasuar trupave, aq më parësore Krijuesi: real pa ngjasim — kush i mohon cilësitë është mohues, kush i ngjason është injorant."},
+{"t":"Shembujt","type":"tf","q":"Kush e mohon cilësinë e shpirtit është mohues (muattil), e kush e ngjason me trupat është injorant ngjasues (mumeththil).","a":0,"e":"Saktë: e njëjta vlen aq më tepër për Krijuesin — mohuesi i cilësive është muattil xhahid, ngjasuesi është mumeththil xhahil."},
+{"t":"Shembujt","q":"Arsyeja pse mutekel-liminët e filozofët u hutuan te çështja e shpirtit ishte:","o":["pakësimi i marrjes prej shpalljes e mungesa e të ngjashmit","shumësia shumë e madhe e teksteve të ardhura për të","lehtësia jashtëzakonisht e madhe e vetë kësaj teme","pajtimi i tyre i plotë me metodën e vetë selefit"],"a":0,"e":"Dy arsye: pak morën nga ajo që solli shpallja për shpirtin, dhe s'shohin të ngjashmin e tij — ndaj u hutuan."},
+{"t":"Ahireti","q":"Lidhur me besimin në Allahun dhe Ditën e Fundit, njerëzit u ndanë në sa grupe (firka)?","o":["tre","dy","katër","pesë"],"a":0,"e":"Tri firkat: selefi e imamët; disa prej ehli kelamit; Karamitët/Batinitët/filozofët."},
+{"t":"Ahireti","q":"Firka e parë lidhur me Allahun dhe Ahiretin — që beson realitetin e të dyjave me dallimin (tebajun) nga dynjaja — janë:","o":["selefi dhe imamët e pasuesit e tyre","disa prej dijetarëve të ehli kelamit","Karamitët, Batinitët dhe filozofët","filozofët e lashtë grekë dhe pasuesit"],"a":0,"e":"Selefi besuan realitetin e asaj që lajmëroi Allahu për Veten e për Ahiretin, me bindjen se tebajuni Krijues-krijesë është më i madh e më i qartë."},
+{"t":"Ahireti","q":"Firka e dytë (disa prej ehli kelamit) besojnë Ahiretin (shpërblim e dënim), por:","o":["mohojnë shumë nga cilësitë e Allahut","mohojnë vetë Ahiretin","ngjasojnë Allahun me krijesat","pajtohen plotësisht me selefin"],"a":0,"e":"Besojnë realitetin e Ahiretit, por mohojnë shumë nga realitetet e cilësive të Allahut — pra gjysmak në metodë."},
+{"t":"Ahireti","q":"Firka e tretë (Karamitët, Batinitët, filozofët) e trajtojnë atë që lajmëroi Allahu për Veten e Ahiretin si:","o":["imagjinatë (takhjil) pa realitet të vërtetë","realitet të plotë ashtu siç erdhën","metaforë të lehtë e të kalueshme","të vërtetë të qartë e të prekshme"],"a":0,"e":"E mohojnë realitetin e të dyjave; thonë se lajmet janë takhjil (imagjinatë) pa realitet — e shumë prej tyre bëjnë te'vile batinie."},
+{"t":"Ahireti","type":"tf","q":"Firka e tretë beson realitetin e asaj që lajmëroi Allahu për Veten dhe për Ditën e Fundit.","a":1,"e":"E pasaktë: pikërisht firka e tretë (Karamitë/Batinitë/filozofë) e MOHON realitetin e të dyjave, duke i bërë thjesht takhjil (imagjinatë)."},
+{"t":"Ahireti","q":"Batinitët pretendojnë se sheriati i detyron:","o":["masën e gjerë, jo elitën (el-havas)","të gjithë njerëzit krejtësisht njësoj","vetëm engjëjt e qiellit, jo njerëzit","vetëm profetët e dërguar, jo masën"],"a":0,"e":"Thonë se sheriati lidh publikun e gjerë, jo elitën; e kur dikush arrin gradën e 'arifinëve, u bien detyrimet — pikëpamje e refuzuar rëndë."},
+{"t":"Ahireti","type":"tf","q":"Sipas Tedmurijes, Batinitët janë, me pajtim (ixhma), më të humbur se çifutët dhe të krishterët.","a":0,"e":"Saktë: këta mala'ida, që mohojnë realitetet fetare, sipas ixhmasë janë më të largët nga besimi se jehuditë e nasarat."},
+{"t":"Ahireti","q":"Disa sufi ranë në pikëpamje të afërta me batinitët kur pretenduan se:","o":["në gradë të lartë bien detyrimet e lejohen ndalesat","duhet shtuar shumë adhurimi dhe përkushtimi","duhet ndjekur gjithmonë rruga e qartë e selefit","duhet lexuar vetëm Kurani e lënë hadithi"],"a":0,"e":"Disa thanë se kur robi arrin gradën e 'arifinëve e muhakkikinëve, i bien detyrimet e i lejohen ndalesat — pikëpamje e kotë e rrezikshme."},
+{"t":"Devijuesit","type":"tf","q":"Mumethilet dhe Muattilet, ndonëse të kundërt, të dy devijuan nga rruga e të dërguarve.","a":0,"e":"Saktë: Mumethilet tepruan në pohim e mangësuan në mohim; Muattilet e kundërta — të dy jashtë rrugës së drejtë."},
+{"t":"Muattilet","q":"Pse grupi i parë (Esharitë) bie në kundërthënie kur pohon shtatë cilësi e mohon të tjerat?","o":["s'ka dallim mes cilësive që pohoi e atyre që mohoi","sepse numri shtatë është dukshëm shumë i vogël","sepse i pohoi cilësitë pa asnjë bazë nga teksti","sepse i mohoi cilësitë e tjera duke u bazuar në tekst"],"a":0,"e":"Realiteti i cilësive që pohuan (si dëgjimi) është si realiteti i atyre që mohuan (si dashuria) — pra dallimi i tyre është i pabazë (parimi i parë)."},
+{"t":"Parimet","q":"Shembull i zbatimit të parimit të parë te grupi që mohon mëshirën duke e kthyer në vullnet shpërblimi:","o":["s'ka dallim mes mëshirës e vullnetit që i pohuan","mëshira në të vërtetë fare s'ekziston te Ai","vullneti është thjesht një metaforë e largët nga realiteti","shpërblimi i Allahut fare s'ekziston në Ahiret"],"a":0,"e":"Kush pohon realitetin e një cilësie e mohon realitetin e një tjetre pa dallim të vërtetë, bie në kundërthënie — القول في بعض الصفات كالقول في بعض."},
+{"t":"Rruga","type":"tf","q":"Prej rreziqeve ku ranë grupet është zbrazja (ta'til) e Allahut nga cilësitë e përsosmërisë që i përmbajnë tekstet.","a":0,"e":"Saktë: me largimin e teksteve nga kuptimi i synuar, ata e zbrazën Allahun nga cilësitë e kemalit që ato tekste pohojnë."},
+{"t":"Shembujt","type":"tf","q":"Begatitë e Xhennetit (ushqimi, pijet, frutat) janë emra pa realitet, thjesht shprehje figurative.","a":1,"e":"E pasaktë: ato janë reale (hakk), por ndryshojnë në realitet nga ato të dynjasë; përputhja është vetëm në emër (Ibn Abasi)."},
+{"t":"Devijuesit","q":"Prej provave se ngjasimi është i kotë nga ana e shqisës (hiss) është:","o":["dallimi i qartë i vetë qenieve mes tyre","mospërmendja e cilësive brenda tekstit","heshtja e plotë e dijetarëve të mëdhenj","pajtimi i grupeve të ndryshme mes tyre"],"a":0,"e":"Dallimi i dukshëm mes vetë krijesave (në qenie e cilësi) tregon se dallimi Krijues-krijesë është edhe më i madh — pra ngjasimi i pamundur."},
+{"t":"Muattilet","q":"Grupi i parë pohon disa cilësi; çfarë mohon prej tyre?","o":["shumicën e realiteteve të cilësive të tjera","vetë emrat e bukur të Allahut të Lartë","vetë ekzistencën e Allahut të Madhërishëm","vetë Ditën e Fundit dhe llogarinë e saj"],"a":0,"e":"Pohojnë emrat e shtatë cilësi, por mohojnë shumicën e realiteteve të cilësive të tjera (si dashuria, hidhërimi, fytyra, dy duart)."},
+{"t":"Parimet","type":"tf","q":"Interpretimi i «dorës» së Allahut si «fuqi», sipas Tedmurijes, e detyron njeriun në të njëjtën gjë te «fuqia», ngaqë edhe krijesat kanë fuqi.","a":0,"e":"Saktë: kur muattili ikën nga «dora» te «fuqia», i vjen e njëjta vërejtje te «fuqia» (që e kanë edhe krijesat) — pra i ngjan asaj nga çka iku."},
+{"t":"Ahireti","q":"Firka e parë (selefi) e beson realitetin e lajmeve me bindjen se tebajuni (dallimi):","o":["Krijues-krijesë është më i madh e më i qartë","mes vetë qenieve nuk ekziston asnjëherë","është vetëm një dallim i natyrës gjuhësore","nuk ka fare rëndësi në çështjet e akides"],"a":0,"e":"Selefi besuan realitetin e lajmeve me bindjen se dallimi mes dynjasë e Ahiretit — e aq më tepër mes Krijuesit e krijesës — është më i madh e më i qartë («لَيْسَ كَمِثْلِهِ شَيْءٌ»)."},
+{"t":"Rruga","q":"Rezultati përfundimtar i Tedmurijes për dy skajet është se kush mohon cilësitë është ___, e kush i ngjason është ___:","o":["mohues (muattil) / ngjasues (mumeththil)","i urtë në fe / i ditur në akide","besimtar i mesëm / dijetar i thellë","arab i pastër / joarab i përkthyer"],"a":0,"e":"Kush mohon cilësitë e Allahut është muattil, kush i ngjason me krijesat është mumeththil; Ehlu Sunneti mes tyre: pohim pa ngjasim."},
+{"t":"Muattilet","type":"tf","q":"Sipas përgjigjes kundër Mutezilëve, s'mund të thuhet «Alim» (i Ditur) për atë që s'ka dije.","a":0,"e":"Saktë: fjala e prejardhur (mushtekk) e tregon rrënjën; prandaj pohimi i emrit «El-Alim» pa cilësinë e dijes është i pamundur gjuhësisht."},
+{"t":"Parimet","q":"Parimi i dytë e trajton njëkohësisht çështjen e cilësive dhe atë të:","o":["Qenies (Dhatit) së Allahut","Ditës së Fundit e llogarisë","emrave të idhujve të lashtë","veprave e zgjedhjeve të robërve"],"a":0,"e":"القول في الصفات كالقول في الذات — fjala për cilësitë ndërtohet mbi fjalën për Qenien; kush pranon Qenie të papërngjashme, pranon cilësi të papërngjashme."},
+{"t":"Shembujt","q":"Tebajuni (dallimi) mes begative të dynjasë e të Xhennetit njihet plotësisht nga:","o":["vetëm Allahu","çdo njeri","dijetarët e mëdhenj","engjëjt vetëm"],"a":0,"e":"Mes tyre ka dallim që e di vetëm Allahu; e dallimi Krijues-krijesë është edhe më i madh e më i qartë."},
+{"t":"Devijuesit","q":"Kundër Mumethileve, prej provave sem'ije kryesore është ajeti:","o":["«لَيْسَ كَمِثْلِهِ شَيْءٌ وَهُوَ السَّمِيعُ الْبَصِيرُ»","«قُلْ هُوَ اللَّهُ أَحَدٌ اللَّهُ الصَّمَدُ»","«مَالِكِ يَوْمِ الدِّينِ إِيَّاكَ نَعْبُدُ»","«وَالْعَصْرِ إِنَّ الْإِنسَانَ لَفِي خُسْرٍ»"],"a":0,"e":"«لَيْسَ كَمِثْلِهِ شَيْءٌ» rrëzon temthilin, kurse «وَهُوَ السَّمِيعُ الْبَصِيرُ» pohon cilësitë — një ajet kundër dy skajeve."},
+{"t":"Muattilet","q":"Një prej përgjigjeve kundër Mutezilëve është se Allahu i quajti emrat e Tij «husna» dhe urdhëroi të lutemi me ta; kjo tregon se emrat:","o":["bartin kuptime të mëdha, jo thjesht etiketa","janë emra plotësisht të krijuar në kohë","s'kanë fare kuptim e janë thjesht etiketa boshe","janë metaforë e Qenies pa përmbajtje reale"],"a":0,"e":"«وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَى فَادْعُوهُ بِهَا» — «husna» kërkon kuptime të mëdha; pra emrat s'janë etiketa boshe siç pretendojnë."},
+{"t":"Rruga","type":"tf","q":"Çdo dialektik që vjen më i zoti s'na bën ta lëmë atë që solli Xhibrili te Muhamedi ﷺ — kjo thënie mbështet qëndrimin kundër kthimit te mendja.","a":0,"e":"Saktë: Maliku (cituar në Hamawijje): «أوكلما جاءنا رجل أجدل من رجل تركنا ما جاء به جبريل...؟» — kthimi te dialektika mbi tekstin çon te përçarja."},
+{"t":"Muattilet","q":"Grupi i katërt dallon nga grupi i tretë në atë që grupi i katërt:","o":["mohon edhe vetë pohimin edhe vetë mohimin","pohon disa prej cilësive të Allahut","pohon të paktën emrat e Tij të bukur","ngjason hapur Allahun me vetë krijesat"],"a":0,"e":"Grupi i tretë përshkruan me mohim të pastër; grupi i katërt shkon më tej — as pohon as mohon (as ekziston as s'ekziston)."},
+{"t":"Ahireti","q":"Firka e dytë dallon nga e treta në atë që e dyta:","o":["e beson Ahiretin, por mohon shumë cilësi","e mohon Ahiretin dhe realitetin e tij","i pohon të gjitha cilësitë pa përjashtim","e ngjason Allahun hapur me krijesat"],"a":0,"e":"Firka e dytë (disa ehli kelam) beson realitetin e Ahiretit por mohon shumë cilësi; e treta mohon realitetin e të dyjave."},
+{"t":"Parimet","type":"tf","q":"Sipas parimit të dytë, pohimi i një istiuaje reale (pa e ditur mënyrën) është si pohimi i një Qenieje reale (pa e ditur mënyrën).","a":0,"e":"Saktë: njeriu detyrohet të pohojë istiua reale pa kejf, ashtu si pohon Qenie reale pa kejf — القول في الصفات كالقول في الذات."},
+{"t":"Devijuesit","q":"Mumethili që thotë se Allahu ka fytyrë, dy duar e dy sy «si» tonat ka tepruar në:","o":["pohim (ithbat), duke rënë në ngjasim","mohim i plotë i cilësive të Tij","heshtje ndaj teksteve të cilësive","tenzih i pastër pa asnjë pohim"],"a":0,"e":"Teprimi i tij është në pohim: pohoi cilësitë në mënyrë që u ngjan krijesave (temthil), duke mangësuar në mohimin e ngjasimit."},
+{"t":"Shembujt","type":"tf","q":"Sipas Tedmurijes, njerëzit e kapën realitetin e plotë të shpirtit me anë të mendjes e vëzhgimit.","a":1,"e":"E pasaktë: njerëzit dështuan ta kapin realitetin (kunh) e shpirtit; e njohën vetëm aq sa solli shpallja — «وَمَا أُوتِيتُم مِّنَ الْعِلْمِ إِلَّا قَلِيلًا»."},
+{"t":"Rruga","type":"tf","q":"Rruga e drejtë mes Mumethileve e Muattileve është pohimi pa ngjasim dhe tenzihu pa zbrazje.","a":0,"e":"Saktë: Ehlu Sunneti qëndron mes dy skajeve — pohon cilësitë pa temthil (kundër Mumethileve) e tenzihon pa ta'til (kundër Muattileve)."}
+];
+const N = QUESTIONS.length;
+const LS_KEY = "kuiz-tedmurije-v1";
+const KEYS = ["A","B","C","D"];
+const app = document.getElementById("app");
+let state = null;
+
+function optsOf(q){ return q.type==="tf" ? ["Saktë","E pasaktë"] : q.o; }
+function shuffle(arr){const a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function buildPrepared(order){
+  return order.map(origIdx=>{
+    const q=QUESTIONS[origIdx];
+    if(q.type==="tf") return {order:[0,1],correct:q.a};
+    const idx=shuffle([0,1,2,3]);
+    return {order:idx,correct:idx.indexOf(q.a)};
+  });
+}
+function freshState(){
+  const order=shuffle(Array.from({length:N},(_,i)=>i));
+  return {order,prepared:buildPrepared(order),answers:new Array(N).fill(null),cur:0,finished:false,screen:"start"};
+}
+function qAt(p){ return QUESTIONS[state.order[p]]; }
+function save(){try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}}
+function load(){try{const r=localStorage.getItem(LS_KEY);if(!r)return null;const s=JSON.parse(r);
+  if(s&&Array.isArray(s.answers)&&s.answers.length===N&&Array.isArray(s.prepared)&&s.prepared.length===N&&Array.isArray(s.order)&&s.order.length===N)return s;}catch(e){}return null;}
+function score(){let c=0,w=0,b=0;for(let i=0;i<N;i++){const a=state.answers[i];if(a===null){b++;continue;}a===state.prepared[i].correct?c++:w++;}return {correct:c,wrong:w,blank:b};}
+
+function render(){ if(state.screen==="start")return renderStart(); if(state.screen==="quiz")return renderQuiz(); if(state.screen==="result")return renderResult(); }
+
+function renderStart(){
+  const resumable=state.answers.some(a=>a!==null)&&!state.finished;
+  const tfCount=QUESTIONS.filter(q=>q.type==="tf").length;
+  app.innerHTML=`
+  <div class="wrap">
+    <div class="hero">
+      <div class="hero-top">
+        <div class="eyebrow">Akide · Emrat dhe Cilësitë e Allahut</div>
+        <h1>Kuiz: Takribut-Tedmurijje</h1>
+        <p class="hero-sub">Bazuar në «تقريب التدمرية» (f. 21–46) — përmbledhja e Et-Tedmurijjes së Shejhul-Islam Ibn Tejmijes.</p>
+      </div>
+      <div class="creed">
+        <div class="lbl">Rregullat e librit</div>
+        <p>Pyetjet mbulojnë dy llojet e devijuesve (Mumethilet e Muattilet), katër grupet e Muattileve, dy parimet e Tedmurijes dhe dy shembujt (Xhenneti e shpirti).</p>
+      </div>
+      <div class="meta-row">
+        <div class="stat"><b>${N}</b><span>pyetje gjithsej</span></div>
+        <div class="stat"><b>${N-tfCount}</b><span>me opsione (a–d)</span></div>
+        <div class="stat"><b>${tfCount}</b><span>«Saktë / E pasaktë»</span></div>
+      </div>
+      <ul class="rules">
+        <li>Dy lloje pyetjesh: me katër opsione, dhe pohime që i gjykon <b>Saktë</b> ose <b>E pasaktë</b>.</li>
+        <li>Përgjigjja <b>nuk</b> shfaqet menjëherë — del në fund, me korrigjim pyetje për pyetje.</li>
+        <li>Në çdo pyetje ke butonin <b style="color:var(--gold)">💡 Sqarim</b>: të jep përgjigjen e saktë dhe një shpjegim të shkurtër.</li>
+        <li>Renditja e pyetjeve dhe e opsioneve është e rastësishme çdo herë që fillon.</li>
+      </ul>
+      <div class="actions">
+        <button class="btn" id="startBtn">${resumable?"Vazhdo kuizin":"Fillo kuizin"}</button>
+        ${resumable?`<button class="btn ghost" id="restartBtn">Fillo nga e para</button>`:""}
+        <button class="btn ghost" id="themeBtn">◑ Temë</button>
+      </div>
+      <p class="books">Libri: <b>تقريب التدمرية</b> (f. 21–46) — përmbledhje e Et-Tedmurijjes së Ibn Tejmijes.</p>
+    </div>
+    <p class="foot">«لَيْسَ كَمِثْلِهِ شَيْءٌ وَهُوَ السَّمِيعُ الْبَصِيرُ» — Allahu e di më së miri.</p>
+  </div>`;
+  document.getElementById("startBtn").onclick=()=>{state.screen="quiz";save();render();};
+  const rb=document.getElementById("restartBtn"); if(rb)rb.onclick=()=>{state=freshState();save();render();};
+  document.getElementById("themeBtn").onclick=toggleTheme;
+}
+
+function renderQuiz(){
+  const i=state.cur,q=qAt(i),prep=state.prepared[i],opts=optsOf(q);
+  const isTF=q.type==="tf";
+  const answered=state.answers.filter(a=>a!==null).length;
+  const pct=Math.round((i/N)*100);
+  const optsHtml=prep.order.map((origIdx,pos)=>{
+    const sel=state.answers[i]===pos;
+    if(isTF){
+      const txt=opts[origIdx]; const mark=origIdx===0?"✓":"✗";
+      return `<button class="opt tfbtn ${sel?"sel":""}" data-pos="${pos}"><span class="txt">${mark} ${txt}</span></button>`;
+    }
+    return `<button class="opt ${sel?"sel":""}" data-pos="${pos}"><span class="key">${KEYS[pos]}</span><span class="txt">${opts[origIdx]}</span></button>`;
+  }).join("");
+  app.innerHTML=`
+  <div class="topbar"><div class="topbar-in">
+    <button class="iconbtn" id="homeBtn">⌂</button>
+    <div class="counter">Pyetja ${i+1}<small> / ${N}</small></div>
+    <div class="progress"><i style="width:${pct}%"></i></div>
+    <button class="iconbtn" id="themeBtn">◑</button>
+  </div></div>
+  <div class="wrap" style="padding-top:0">
+    <div class="card">
+      <div class="qtag"><span class="topic">${q.t}</span><span class="kind">${isTF?"Saktë / E pasaktë":"Zgjidh njërën"}</span></div>
+      <p class="qtext">${q.q}</p>
+      <div class="opts ${isTF?"tf":""}" id="opts">${optsHtml}</div>
+      <button class="btn ghost sm hintbtn" id="hintBtn">💡 Shfaq përgjigjen &amp; sqarimin</button>
+      <div class="navbtns">
+        <button class="btn ghost sm" id="prevBtn" ${i===0?"disabled":""}>‹ Mbrapa</button>
+        <button class="btn ghost sm" id="jumpBtn">▦ Lista (${answered}/${N})</button>
+        <span class="spacer"></span>
+        ${i<N-1?`<button class="btn sm" id="nextBtn">Tjetra ›</button>`:`<button class="btn sm" id="finishBtn">Përfundo ✓</button>`}
+      </div>
+    </div>
+    <div id="jumpWrap" hidden></div>
+    <div style="margin-top:16px;text-align:center"><button class="btn ghost sm" id="finishAnytime">Përfundo kuizin tani</button></div>
+  </div>`;
+  document.querySelectorAll(".opt").forEach(b=>{
+    b.onclick=()=>{ state.answers[i]=parseInt(b.dataset.pos,10); save();
+      document.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel")); b.classList.add("sel");
+      setTimeout(()=>{ if(state.cur<N-1){state.cur++;render();} else render(); },180);
+    };
+  });
+  document.getElementById("homeBtn").onclick=()=>{state.screen="start";save();render();};
+  document.getElementById("themeBtn").onclick=toggleTheme;
+  const p=document.getElementById("prevBtn"); if(p)p.onclick=()=>{if(i>0){state.cur--;render();}};
+  const nx=document.getElementById("nextBtn"); if(nx)nx.onclick=()=>{if(i<N-1){state.cur++;render();}};
+  const fn=document.getElementById("finishBtn"); if(fn)fn.onclick=confirmFinish;
+  document.getElementById("finishAnytime").onclick=confirmFinish;
+  document.getElementById("jumpBtn").onclick=toggleJump;
+  document.getElementById("hintBtn").onclick=()=>showExplanation(i);
+}
+
+function showExplanation(i){
+  const q=qAt(i),prep=state.prepared[i],opts=optsOf(q);
+  const pos=prep.correct, origIdx=prep.order[pos];
+  const label=q.type==="tf"?(origIdx===0?"✓ Saktë":"✗ E pasaktë"):(KEYS[pos]+".  "+opts[origIdx]);
+  const bk=document.createElement("div"); bk.className="modal-bk";
+  bk.innerHTML=`<div class="modal" role="dialog" aria-modal="true">
+    <div class="mtag">${q.t} · Pyetja ${i+1}</div>
+    <p class="mq">${q.q}</p>
+    <div class="ans"><span class="key">${q.type==="tf"?(origIdx===0?"✓":"✗"):KEYS[pos]}</span><span class="atx">${opts[origIdx]}</span></div>
+    <div class="why"><b>Pse kjo përgjigje</b>${q.e}</div>
+    <div class="closeRow"><button class="btn sm" id="closeHint">Mbylle</button></div>
+  </div>`;
+  document.body.appendChild(bk);
+  const close=()=>{bk.remove();document.removeEventListener("keydown",esc);};
+  const esc=(e)=>{if(e.key==="Escape")close();};
+  bk.addEventListener("click",e=>{if(e.target===bk)close();});
+  bk.querySelector("#closeHint").onclick=close;
+  document.addEventListener("keydown",esc);
+}
+
+function toggleJump(){
+  const w=document.getElementById("jumpWrap"); if(!w)return;
+  if(!w.hidden){w.hidden=true;return;}
+  const cells=state.prepared.map((_,k)=>{
+    const ans=state.answers[k]!==null, cur=k===state.cur;
+    return `<button class="cell ${ans?"answered":""} ${cur?"current":""}" data-k="${k}">${k+1}</button>`;
+  }).join("");
+  w.innerHTML=`<div class="jump"><h3>Kërce te pyetja</h3><div class="grid-n">${cells}</div></div>`;
+  w.hidden=false;
+  w.querySelectorAll(".cell").forEach(c=>c.onclick=()=>{state.cur=parseInt(c.dataset.k,10);render();});
+  w.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function confirmFinish(){
+  const blank=state.answers.filter(a=>a===null).length;
+  const msg=blank>0?`Ke ${blank} pyetje pa përgjigje. Këto numërohen si gabim. A dëshiron të përfundosh?`:`I ke përgjigjur të gjitha pyetjeve. A dëshiron të shohësh rezultatin?`;
+  const bar=document.createElement("div");
+  bar.style.cssText="position:fixed;inset:auto 0 0 0;z-index:30;background:var(--surface);border-top:1px solid var(--border);box-shadow:var(--shadow);padding:16px max(16px,env(safe-area-inset-right,0px)) calc(16px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))";
+  bar.innerHTML=`<div class="wrap" style="padding:0;display:flex;gap:12px;align-items:center;flex-wrap:wrap"><span style="flex:1 1 14rem;min-width:0">${msg}</span><button class="btn ghost sm" id="cancelFin">Jo, kthehu</button><button class="btn sm" id="okFin">Po, përfundo</button></div>`;
+  document.body.appendChild(bar);
+  document.getElementById("cancelFin").onclick=()=>bar.remove();
+  document.getElementById("okFin").onclick=()=>{bar.remove();state.finished=true;state.screen="result";state.cur=0;save();render();};
+}
+
+let revFilter="all";
+function renderResult(){
+  const s=score(),pct=Math.round((s.correct/N)*100);
+  const cells=state.prepared.map((_,k)=>{
+    const a=state.answers[k]; let cls="blank";
+    if(a!==null)cls=(a===state.prepared[k].correct)?"correct":"wrong";
+    return `<button class="cell ${cls}" data-k="${k}" aria-label="Pyetja ${k+1}">${k+1}</button>`;
+  }).join("");
+  app.innerHTML=`
+  <div class="wrap">
+    <div class="score">
+      <div class="eyebrow" style="color:var(--gold)">Rezultati</div>
+      <div class="big">${s.correct}<span style="font-size:.4em;color:var(--muted)"> / ${N}</span></div>
+      <div class="pct">${pct}% të sakta</div>
+      <div class="tags"><span class="pill ok">✓ ${s.correct} saktë</span><span class="pill no">✕ ${s.wrong} gabim</span>${s.blank?`<span class="pill sk">○ ${s.blank} pa përgjigje</span>`:""}</div>
+    </div>
+    <div class="legend"><span><i class="dot c"></i> saktë</span><span><i class="dot w"></i> gabim</span><span><i class="dot b"></i> pa përgjigje</span><span style="margin-inline-start:auto">Prek numrin për ta parë pyetjen ↓</span></div>
+    <div class="jump" style="margin-top:0"><div class="grid-n" id="resGrid">${cells}</div></div>
+    <div class="filterbar">
+      <button class="chip ${revFilter==="all"?"on":""}" data-f="all">Të gjitha</button>
+      <button class="chip ${revFilter==="wrong"?"on":""}" data-f="wrong">Vetëm gabimet (${s.wrong+s.blank})</button>
+      <button class="chip ${revFilter==="correct"?"on":""}" data-f="correct">Vetëm të saktat (${s.correct})</button>
+    </div>
+    <div class="review" id="review"></div>
+    <div style="margin-top:26px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center">
+      <button class="btn" id="againBtn">Rifillo kuizin</button>
+      <button class="btn ghost" id="homeBtn">Ballina</button>
+      <button class="btn ghost" id="themeBtn">◑ Temë</button>
+    </div>
+    <p class="foot">Allahu e di më së miri. Ia pohojmë Atij emrat dhe cilësitë ashtu siç i takojnë madhështisë së Tij.</p>
+  </div>`;
+  const reviewEl=document.getElementById("review");
+  function revCard(k){
+    const q=qAt(k),prep=state.prepared[k],a=state.answers[k],opts=optsOf(q);
+    const isCorrect=a!==null&&a===prep.correct;
+    const badge=a===null?`<span class="rev-badge sk">Pa përgjigje</span>`:isCorrect?`<span class="rev-badge ok">Saktë</span>`:`<span class="rev-badge no">Gabim</span>`;
+    const o=prep.order.map((origIdx,pos)=>{
+      let cls="",mark=""; const isTF=q.type==="tf";
+      const keyTxt=isTF?(origIdx===0?"✓":"✗"):KEYS[pos];
+      if(pos===prep.correct){cls="c";mark="E saktë";}
+      if(a===pos&&pos!==prep.correct){cls="w";mark="Zgjedhja jote";}
+      if(a===pos&&pos===prep.correct){mark="Zgjedhja jote ✓";}
+      return `<div class="rev-opt ${cls}"><span class="key">${keyTxt}</span><span class="txt" style="min-width:0">${opts[origIdx]}</span>${mark?`<span class="mark">${mark}</span>`:""}</div>`;
+    }).join("");
+    return `<div class="rev-card" id="rev-${k}"><div class="rev-head"><span class="rev-num">Pyetja ${k+1}</span>${badge}<span class="muted" style="margin-inline-start:auto;font-size:.78rem">${q.t}${q.type==="tf"?" · S/P":""}</span></div><p class="rev-q">${q.q}</p><div class="rev-opts">${o}</div><div class="rev-why"><b>Pse</b>${q.e}</div></div>`;
+  }
+  function paintReview(){
+    let ks=[];
+    for(let k=0;k<N;k++){const a=state.answers[k];const ok=a!==null&&a===state.prepared[k].correct;
+      if(revFilter==="all")ks.push(k); else if(revFilter==="wrong"&&!ok)ks.push(k); else if(revFilter==="correct"&&ok)ks.push(k);}
+    reviewEl.innerHTML=ks.length?ks.map(revCard).join(""):`<p class="muted" style="text-align:center;padding:20px">S'ka pyetje në këtë kategori.</p>`;
+  }
+  paintReview();
+  document.getElementById("resGrid").querySelectorAll(".cell").forEach(c=>{
+    c.onclick=()=>{const k=parseInt(c.dataset.k,10);
+      if(revFilter!=="all"){revFilter="all";document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x.dataset.f==="all"));paintReview();}
+      const el=document.getElementById("rev-"+k);
+      if(el){el.scrollIntoView({behavior:"smooth",block:"start"});el.style.transition="box-shadow .4s";el.style.boxShadow="0 0 0 2px var(--gold)";setTimeout(()=>{el.style.boxShadow="";},1200);}
+    };
+  });
+  document.querySelectorAll(".chip").forEach(ch=>ch.onclick=()=>{revFilter=ch.dataset.f;document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("on",x===ch));paintReview();});
+  document.getElementById("againBtn").onclick=()=>{state=freshState();save();render();};
+  document.getElementById("homeBtn").onclick=()=>{state.screen="start";save();render();};
+  document.getElementById("themeBtn").onclick=toggleTheme;
+}
+
+function toggleTheme(){
+  const root=document.documentElement,cur=root.getAttribute("data-theme");
+  let next; if(cur==="dark")next="light"; else if(cur==="light")next="dark";
+  else next=(window.matchMedia&&window.matchMedia("(prefers-color-scheme: dark)").matches)?"light":"dark";
+  root.setAttribute("data-theme",next);
+  try{localStorage.setItem(LS_KEY+"-theme",next);}catch(e){}
+}
+(function(){try{const t=localStorage.getItem(LS_KEY+"-theme");if(t)document.documentElement.setAttribute("data-theme",t);}catch(e){}})();
+
+state=load()||freshState();
+if(state.finished)state.screen="result";
+render();
+</script>
+
+</body>
+</html>
